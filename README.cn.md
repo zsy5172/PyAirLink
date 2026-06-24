@@ -19,6 +19,7 @@ sudo minicom -D /dev/ttyACM0
    - 邮件
    - Bark
    - server酱
+   - 企业微信
 3. 定时/手动重启
 4. 定时/手动发送短信
 5. 执行自定义AT信令
