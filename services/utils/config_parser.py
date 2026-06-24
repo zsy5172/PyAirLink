@@ -23,9 +23,13 @@ class Config:
         return self.config.get('SERVERCHAN', 'SENDKEY')
 
     def bark(self):
-        url = self.config.get('BARK', 'URL')
-        key = self.config.get('BARK', 'KEY')
+        url = self.config.get('BARK', 'URL', fallback='')
+        key = self.config.get('BARK', 'KEY', fallback='')
         return {'url': url, 'key': key}
+
+    def wecom(self):
+        key = self.config.get('WECOM', 'KEY', fallback='')
+        return {'key': key}
 
     def mail(self):
         smtp_server = self.config.get('MAIL', 'SMTP_SERVER')

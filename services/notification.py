@@ -65,6 +65,41 @@ def bark(title, body, options=None):
     return False
 
 
+def wecom(title, body, options=None):
+    """
+    使用企业微信机器人推送消息。
+    """
+    wecom_config = config.wecom()
+    key = wecom_config.get('key')
+    if not key:
+        logger.error("WeCom push error: KEY is not configured")
+        return False
+
+    url = f"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={key}"
+    options = options if options else {}
+    content = f"{title}\n\n{body}" if body else title
+    data = {
+        "msgtype": "text",
+        "text": {
+            "content": content,
+            **options
+        }
+    }
+    try:
+        response = requests.post(url, json=data)
+        if response.ok:
+            result = response.json()
+            if result.get("errcode") == 0:
+                logger.info(f"WeCom push has been sent, return: {result}")
+                return True
+            logger.warning(f"WeCom push failed, return: {result}")
+        else:
+            logger.warning(f"WeCom push failed, return: {response.text}")
+    except Exception as e:
+        logger.error(f"WeCom push error: {e}")
+    return False
+
+
 def send_email(subject, body):
     email_account = config.mail()
     try:
