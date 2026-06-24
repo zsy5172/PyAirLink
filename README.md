@@ -26,6 +26,7 @@ PyAirLink is a tool for managing wireless communication modules through a web in
    - Email
    - Bark
    - ServerChan (Server酱)
+   - WeCom (Enterprise WeChat)
 3. Scheduled or manual module reboot
 4. Scheduled or manual SMS sending
 5. Custom AT command execution
