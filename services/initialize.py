@@ -12,6 +12,20 @@ from .utils.commands import at_commands
 logger = logging.getLogger("PyAirLink")
 
 
+def _at_ok(response):
+    return bool(response) and "OK" in response and "ERROR" not in response
+
+
+def _configure_sms_storage(serial_manager):
+    for mem in ("SM", "ME"):
+        response = serial_manager.send_at_command(at_commands.cpms(mem=mem), keywords="OK")
+        if _at_ok(response):
+            logger.info("SMS storage is set to %s", mem)
+            return True
+        logger.warning("Unable to set SMS storage to %s, response: %s", mem, response)
+    return False
+
+
 def web_send_at_command(command, keywords=None, timeout=3):
     with SerialManager() as serial_manager:
         response = serial_manager.send_at_command(command, keywords=keywords, timeout=timeout)
@@ -27,36 +41,35 @@ def initialize_module():
     # 发送基本AT指令
     with SerialManager() as serial_manager:
         response = serial_manager.send_at_command(at_commands.at(), keywords="OK")
-        if not response:
+        if not _at_ok(response):
             logger.error("Unable to communicate with module")
             return False
 
         response = serial_manager.send_at_command(at_commands.cpin(), keywords="OK")
-        if "READY" not in response:
+        if not _at_ok(response) or "READY" not in response:
             logger.error("SIM card not detected, please check and restart the module")
             return False
         logger.info("SIM card ready")
 
         response = serial_manager.send_at_command(at_commands.cmgf(), keywords="OK")
-        if not response:
+        if not _at_ok(response):
             logger.error("Unable to set SMS format to PDU")
             return False
         logger.info("SMS format is set to PDU")
 
         response = serial_manager.send_at_command(at_commands.cscs(), keywords="OK")
-        if not response:
+        if not _at_ok(response):
             logger.error("Unable to set character set to UCS2")
             return False
         logger.info("Character set is set to UCS2")
 
-        response = serial_manager.send_at_command(at_commands.cpms(), keywords="OK")
-        if not response:
+        if not _configure_sms_storage(serial_manager):
             logger.error("Unable to configure new SMS buffer")
             return False
         logger.info("New SMS buffer configuration completed")
 
         response = serial_manager.send_at_command(at_commands.cnmi(), keywords="OK")
-        if not response:
+        if not _at_ok(response):
             logger.error("Unable to configure new SMS notifications")
             return False
         logger.info("New SMS notification configuration completed")
@@ -72,7 +85,7 @@ def initialize_module():
                 time.sleep(5)
 
         response = serial_manager.send_at_command(at_commands.cmgd(index=1, delflag=2), keywords=['OK'])
-        if not response:
+        if not _at_ok(response):
             logger.error("Unable to delete read messages, and unable to receive new messages if the storage area is full")
         logger.info("All read messages have been deleted")
 

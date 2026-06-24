@@ -131,7 +131,7 @@ class ATCommands:
     @staticmethod
     def cpms(mem='SM'):
         """ Set up a short message storage area; "SM" stands for SIM card. """
-        return ATCommands._send(f'"AT+CPMS="{mem}","{mem}","{mem}"')
+        return ATCommands._send(f'AT+CPMS="{mem}","{mem}","{mem}"')
 
     @staticmethod
     def reset():
