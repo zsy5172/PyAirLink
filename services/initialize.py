@@ -3,7 +3,7 @@ import time
 import logging
 from zoneinfo import ZoneInfo
 
-from services.notification import serverchan, send_email, bark
+from services.notification import serverchan, send_email, bark, wecom
 from services.utils.config_parser import config
 from services.utils.serial_manager import SerialManager
 from .utils.sms import parse_pdu, encode_pdu
@@ -96,7 +96,7 @@ def handle_sms(phone_number, sms_content, receive_time, tz="Asia/Shanghai"):
     处理接收到的短信
     """
     logger.info(f"Received SMS from {phone_number} at {receive_time}, content: {sms_content}")
-    channels = {'serverchan': serverchan, 'mail': send_email, 'bark': bark}
+    channels = {'serverchan': serverchan, 'mail': send_email, 'bark': bark, 'wecom': wecom}
     use_channels = config.notification()
     if use_channels:
         title = f'new sms from {phone_number}'
